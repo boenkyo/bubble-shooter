@@ -95,7 +95,6 @@ class ShotHandler {
     this.maxVel = 0.6;
 
     this.isShot = false;
-    bubble.isCollided = false;
   }
 
   update(dt) {
