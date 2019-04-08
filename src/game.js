@@ -63,7 +63,6 @@ export default class Game {
         this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
 
         break;
-        }
       }
     }
   }

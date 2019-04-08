@@ -58,7 +58,6 @@ export default class Grid {
     delete bubble.shotHandler;
     bubble.addGridPosition(this, q, r);
     this.bubbles.push(bubble);
-    console.log(this.bubbles[this.bubbles.length-1]);
   }
 
 }

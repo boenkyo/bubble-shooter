@@ -109,7 +109,6 @@
       this.maxVel = 0.6;
 
       this.isShot = false;
-      bubble.isCollided = false;
     }
 
     update(dt) {
@@ -239,7 +238,6 @@
       delete bubble.shotHandler;
       bubble.addGridPosition(this, q, r);
       this.bubbles.push(bubble);
-      console.log(this.bubbles[this.bubbles.length-1]);
     }
 
   }
@@ -338,40 +336,38 @@
     update(dt) {
       this.activeBubble.update(dt);
 
-      if (!this.activeBubble.collided) {
-        for (let i = 0; i < this.grid.bubbles.length; ++i) {
-          const gridBubble = this.grid.bubbles[i];
-          const collision = this.activeBubble.shotHandler
-            .checkCollision(gridBubble);
+      for (let i = 0; i < this.grid.bubbles.length; ++i) {
+        const gridBubble = this.grid.bubbles[i];
+        const collision = this.activeBubble.shotHandler
+          .checkCollision(gridBubble);
 
-          if (collision.colliding) {
-            this.activeBubble.collided = true;
+        if (collision.colliding) {
+          this.activeBubble.collided = true;
 
-            let q = gridBubble.gridPos.q;
-            let r = gridBubble.gridPos.r;
+          let q = gridBubble.gridPos.q;
+          let r = gridBubble.gridPos.r;
 
-            if (collision.horizontalPos == 'left') {
-              switch (collision.verticalPos) {
-                case 'bottom': q--; r++; break;
-                case 'middle': q--;      break;
-                case 'top':    r--;
-              }
-            } else {
-              switch (collision.verticalPos) {
-                case 'bottom': r++; break;
-                case 'middle': q++; break;
-                case 'top':    q++; r--;
-              }
+          if (collision.horizontalPos == 'left') {
+            switch (collision.verticalPos) {
+              case 'bottom': q--; r++; break;
+              case 'middle': q--;      break;
+              case 'top':    r--;
             }
-
-            this.grid.addBubble(this.activeBubble, q, r);
-
-            // new active bubble
-            this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
-            this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
-
-            break;
+          } else {
+            switch (collision.verticalPos) {
+              case 'bottom': r++; break;
+              case 'middle': q++; break;
+              case 'top':    q++; r--;
+            }
           }
+
+          this.grid.addBubble(this.activeBubble, q, r);
+
+          // new active bubble
+          this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
+          this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
+
+          break;
         }
       }
     }
