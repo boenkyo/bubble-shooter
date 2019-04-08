@@ -1,0 +1,53 @@
+{
+    "extends": ["eslint:recommended", "google"],
+
+    "parserOptions": {
+        "ecmaVersion": 2018,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+
+    "env": {
+        "browser": true,
+        "node": true
+    },
+
+    "rules": {
+        "indent": ["error", 2, {
+            "SwitchCase": 1,
+            "VariableDeclarator": "first",
+            "FunctionDeclaration": { "parameters": "first" },
+            "CallExpression": { "arguments": "first" },
+            "ArrayExpression": "first",
+            "ObjectExpression": "first",
+            "ImportDeclaration": "first"
+        }],
+        "no-console": "off",
+        "block-spacing": ["error", "always"],
+        "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+        "space-in-parens": ["error", "never"],
+        "require-jsdoc": "off",
+        "max-len": ["error", {"code": 120}],
+        "arrow-parens": ["error", "as-needed"],
+        "padded-blocks": ["error", {
+                                "blocks": "never",
+                                "classes": "always",
+                                "switches": "never"
+        }],
+        "object-curly-spacing": ["error", "always"],
+        "arrow-spacing": ["error", { "before": true, "after": true }],
+        "no-multi-spaces": ["off", {
+            "exceptions": {
+                "Property": true,
+                "VariableDeclarator": true,
+                "ImportDeclaration": true,
+                "AssignmentExpression": true,
+                "LogicalExpression": true
+        }}],
+        "key-spacing": ["error", {
+            "mode": "minimum",
+            "align": "value"}]
+    }
+}
