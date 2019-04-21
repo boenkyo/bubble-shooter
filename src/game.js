@@ -14,12 +14,15 @@ export default class Game {
 
     this.inputHandler = new InputHandler(this, canvas);
 
-    this.grid = new Grid(this, cfg);
+    this.grid = new Grid(this);
 
-    this.aimGuide = new AimGuide(this.inputHandler, { x: width / 2, y: height - 30 });
+    this.aimGuide = new AimGuide(this, this.inputHandler, { x: width / 2, y: height - 30 }, this.grid);
 
-    this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
-    this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
+    this.start();
+  }
+
+  start() {
+    this.getNewBubble();
   }
 
   draw(ctx) {
@@ -56,15 +59,19 @@ export default class Game {
           }
         }
 
-        this.grid.addBubble(this.activeBubble, q, r);
+        // this.grid.addBubble(this.activeBubble, q, r);
 
         // new active bubble
-        this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
-        this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
+        // this.getNewBubble();
 
         break;
       }
     }
+  }
+
+  getNewBubble() {
+    this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
+    this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
   }
 
   shootBubble() {

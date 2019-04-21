@@ -6,5 +6,5 @@ export default {
   TILE_RADIUS:  20,
 
   // Bubble
-  BUBBLE_RADIUS: 15,
+  BUBBLE_RADIUS: 17,
 };

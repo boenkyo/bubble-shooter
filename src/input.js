@@ -15,7 +15,8 @@ export default class InputHandler {
     });
 
     document.addEventListener('mousedown', event => {
-      game.shootBubble();
+      // game.shootBubble();
+      game.aimGuide.addBubble();
     });
 
     document.addEventListener('mousemove', event => {

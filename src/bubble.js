@@ -1,3 +1,5 @@
+import cfg from './config';
+
 export class Bubble {
 
   constructor(bubbleType, radius) {
@@ -58,7 +60,7 @@ class GridPosition {
 
   constructor(grid, q, r) {
     this.grid = grid;
-    this.radius = grid.cfg.TILE_RADIUS;
+    this.radius = cfg.TILE_RADIUS;
 
     this.q = q;
     this.r = r;
@@ -68,13 +70,7 @@ class GridPosition {
   }
 
   getScreenPos() {
-    const x = this.radius *
-              (Math.sqrt(3) * this.q + Math.sqrt(3)/2 * this.r)
-              + this.grid.xOffset;
-    const y = this.radius * (3/2 * this.r)
-              + this.grid.yOffset;
-
-    return { x, y };
+    return this.grid.gridPosToScreenPos({ q: this.q, r: this.r });
   }
 
   update(q, r) {

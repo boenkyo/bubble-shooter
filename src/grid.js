@@ -1,12 +1,11 @@
 import { Bubble, getRandomBubbleType } from './bubble';
+import cfg from './config';
 
 export default class Grid {
 
   // TODO: make constants class with bubble and grid sizes
 
-  constructor(game, cfg) {
-    this.cfg = cfg;
-
+  constructor(game) {
     this.width      = cfg.GRID_WIDTH;
     this.height     = cfg.GRID_HEIGHT;
     this.spacing    = cfg.GRID_SPACING;
@@ -27,7 +26,7 @@ export default class Grid {
       const rOffset = Math.floor(r/2);
       for (let q = -rOffset; q < this.width - rOffset; ++q) {
         const bubbleType = getRandomBubbleType();
-        const bubble = new Bubble(bubbleType, this.cfg.BUBBLE_RADIUS);
+        const bubble = new Bubble(bubbleType, cfg.BUBBLE_RADIUS);
         bubble.addGridPosition(this, q, r);
 
         bubbles.push(bubble);
@@ -58,6 +57,20 @@ export default class Grid {
     delete bubble.shotHandler;
     bubble.addGridPosition(this, q, r);
     this.bubbles.push(bubble);
+  }
+
+  isPosEqual(pos1, pos2) {
+    return pos1.q == pos2.q && pos1.r == pos2.r;
+  }
+
+  gridPosToScreenPos(gridPos) {
+    const x = cfg.TILE_RADIUS *
+              (Math.sqrt(3) * gridPos.q + Math.sqrt(3)/2 * gridPos.r)
+              + this.xOffset;
+    const y = cfg.TILE_RADIUS * (3/2 * gridPos.r)
+              + this.yOffset;
+
+    return { x, y };
   }
 
 }
