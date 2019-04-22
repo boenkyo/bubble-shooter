@@ -259,7 +259,10 @@
       this.guideLen = 100;
 
       this.samplePoints = [];
-      this.ghostBubble;
+      this.wallHitPos;
+      this.hitPos;
+      this.hitScreenPos;
+      this.lastSamplePos;
     }
 
     update(mousePos) {
@@ -268,9 +271,14 @@
 
       this.angle = Math.atan2(mouseRelY, mouseRelX);
 
-      if (this.angle < 0.3 || this.angle > Math.PI - 0.3) return;
+      if (this.angle < 0.3 || this.angle > Math.PI - 0.3) {
+        this.hitPos       = undefined;
+        this.hitScreenPos = undefined;
+        return;
+      }
 
       this.samplePoints = [];
+
       this.sampleHexes();
 
       this.mousePos = mousePos;
@@ -278,69 +286,56 @@
 
     sampleHexes() {
       const sampleDistance = 2;
-      let positionFound = false;
-
       const yIncrement = sampleDistance * Math.sin(this.angle);
 
       let y = yIncrement;
+      let positionFound = false;
 
-      while (!positionFound && y < 500) {
-        const sampleXCenter = y / Math.tan(this.angle) + this.origin.x;
+      while (!positionFound && y < 1000) {
         const sampleYCenter = this.origin.y - y;
+        let sampleXCenter = y / Math.tan(this.angle) + this.origin.x;
+
+        if (sampleXCenter <= cfg.BUBBLE_RADIUS) {
+          if (!this.wallHitPos) {
+            this.wallHitPos = { x: sampleXCenter, y: sampleYCenter };
+          }
+          sampleXCenter = -y / Math.tan(this.angle) - this.origin.x + this.wallHitPos.x;
+        } else if (sampleXCenter >= this.game.width - cfg.BUBBLE_RADIUS) {
+          if (!this.wallHitPos) {
+            this.wallHitPos = { x: sampleXCenter, y: sampleYCenter };
+          }
+          sampleXCenter = this.wallHitPos.x - y / Math.tan(this.angle) + this.origin.x;
+        } else if (this.wallHitPos) {
+          this.wallHitPos = undefined;
+        }
 
         const sampleCenterPos = { x: sampleXCenter, y: sampleYCenter };
 
-        const sampleX0 = sampleXCenter + cfg.BUBBLE_RADIUS * Math.sin(this.angle);
-        const sampleY0 = sampleYCenter + cfg.BUBBLE_RADIUS * Math.cos(this.angle);
-        const sampleX1 = sampleXCenter - cfg.BUBBLE_RADIUS * Math.sin(this.angle);
-        const sampleY1 = sampleYCenter - cfg.BUBBLE_RADIUS * Math.cos(this.angle);
+        this.samplePoints.push(sampleCenterPos);
 
-        const samplePos = { x: sampleX1, y: sampleY1 };
-        const samplePos2 = { x: sampleX0, y: sampleY0 };
-
-        this.samplePoints.push(samplePos, samplePos2);
-
-        // calculate grid position of sample point
-        const sampleGridPos0 = this.screenPosToGridPos(samplePos);
-        const sampleGridPos1 = this.screenPosToGridPos(samplePos2);
-
-        if (this.isInGrid(sampleGridPos0) || this.isInGrid(sampleGridPos1)) {
-          const offset = cfg.BUBBLE_RADIUS - 5;
-
-          const offsetCenterPosX = sampleCenterPos.x + offset * Math.cos(Math.PI - this.angle);
-          const offsetCenterPosY = sampleCenterPos.y + offset * Math.sin(Math.PI - this.angle);
-
-          const ghostGridPos = this.screenPosToGridPos({ x: offsetCenterPosX, y: offsetCenterPosY });
-
-          this.ghostBubble = this.makeGhostBubble(ghostGridPos);
+        if (this.collidingWithBubble(sampleCenterPos)) {
+          this.hitPos = this.screenPosToGridPos(sampleCenterPos);
+          this.hitScreenPos = this.grid.gridPosToScreenPos(this.hitPos);
+          this.lastSamplePos = sampleCenterPos;
           positionFound = true;
         }
 
         y += yIncrement;
 
         if (!positionFound) {
-          this.ghostBubble = undefined;
-          this.lastGhostPos = undefined;
+          this.hitPos       = undefined;
+          this.hitScreenPos = undefined;
         }
       }
     }
 
-    isInGrid(sampleGridPos) {
+    collidingWithBubble(samplePos) {
       for (let bubbleIdx = 0; bubbleIdx < this.grid.bubbles.length; ++bubbleIdx) {
-        const bubblePos = this.grid.bubbles[bubbleIdx].gridPos;
-        if (sampleGridPos.q == bubblePos.q && sampleGridPos.r == bubblePos.r) {
-          return true;
-        }
+        const bubblePos = this.grid.bubbles[bubbleIdx].getScreenPos();
+        const dist = Math.hypot(samplePos.x - bubblePos.x, samplePos.y - bubblePos.y);
+        if (dist <= cfg.BUBBLE_RADIUS*2) return true;
       }
       return false;
-    }
-
-    makeGhostBubble(gridPos) {
-      const bubble = new Bubble(1, cfg.BUBBLE_RADIUS);
-      bubble.color = '#fff';
-      bubble.addGridPosition(this.grid, gridPos.q, gridPos.r);
-
-      return bubble;
     }
 
     screenPosToGridPos(pos) {
@@ -373,26 +368,41 @@
     }
 
     draw(ctx) {
-      const endX = this.origin.x + Math.cos(this.angle) * this.guideLen;
-      const endY = this.origin.y - Math.sin(this.angle) * this.guideLen;
+      if (this.hitPos) {
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth   = 5;
+        ctx.beginPath();
+        ctx.moveTo(this.origin.x, this.origin.y);
 
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth   = 3;
+        if (this.wallHitPos) {
+          ctx.lineTo(this.wallHitPos.x, this.wallHitPos.y);
+        }
 
-      ctx.beginPath();
-      ctx.moveTo(this.origin.x, this.origin.y);
-      ctx.lineTo(endX, endY);
-      ctx.stroke();
+        ctx.lineTo(this.lastSamplePos.x, this.lastSamplePos.y);
+        ctx.stroke();
+      }
 
+      // debug
       // this.samplePoints.forEach(point => {
       //   ctx.lineWidth = 1;
       //   ctx.beginPath();
       //   ctx.arc(point.x, point.y, 1, 0, Math.PI*2);
       //   ctx.stroke();
       // });
+      // if (this.wallHitPos) {
+      //   ctx.lineWidth = 2;
+      //   ctx.strokeStyle = '#fff';
+      //   ctx.beginPath();
+      //   ctx.arc(this.wallHitPos.x, this.wallHitPos.y, cfg.BUBBLE_RADIUS, 0, Math.PI*2);
+      //   ctx.stroke();
+      // }
 
-      if (this.ghostBubble) {
-        this.ghostBubble.draw(ctx);
+      if (this.hitScreenPos) {
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(this.hitScreenPos.x, this.hitScreenPos.y, cfg.BUBBLE_RADIUS, 0, Math.PI*2);
+        ctx.stroke();
       }
     }
 
@@ -463,39 +473,39 @@
     update(dt) {
       this.activeBubble.update(dt);
 
-      for (let i = 0; i < this.grid.bubbles.length; ++i) {
-        const gridBubble = this.grid.bubbles[i];
-        const collision = this.activeBubble.shotHandler
-          .checkCollision(gridBubble);
+      // for (let i = 0; i < this.grid.bubbles.length; ++i) {
+      //   const gridBubble = this.grid.bubbles[i];
+      //   const collision = this.activeBubble.shotHandler
+      //     .checkCollision(gridBubble);
 
-        if (collision.colliding) {
-          this.activeBubble.collided = true;
+      //   if (collision.colliding) {
+      //     this.activeBubble.collided = true;
 
-          let q = gridBubble.gridPos.q;
-          let r = gridBubble.gridPos.r;
+      //     let q = gridBubble.gridPos.q;
+      //     let r = gridBubble.gridPos.r;
 
-          if (collision.horizontalPos == 'left') {
-            switch (collision.verticalPos) {
-              case 'bottom': q--; r++; break;
-              case 'middle': q--;      break;
-              case 'top':    r--;
-            }
-          } else {
-            switch (collision.verticalPos) {
-              case 'bottom': r++; break;
-              case 'middle': q++; break;
-              case 'top':    q++; r--;
-            }
-          }
+      //     if (collision.horizontalPos == 'left') {
+      //       switch (collision.verticalPos) {
+      //         case 'bottom': q--; r++; break;
+      //         case 'middle': q--;      break;
+      //         case 'top':    r--;
+      //       }
+      //     } else {
+      //       switch (collision.verticalPos) {
+      //         case 'bottom': r++; break;
+      //         case 'middle': q++; break;
+      //         case 'top':    q++; r--;
+      //       }
+      //     }
 
-          // this.grid.addBubble(this.activeBubble, q, r);
+      //     // this.grid.addBubble(this.activeBubble, q, r);
 
-          // new active bubble
-          // this.getNewBubble();
+      //     // new active bubble
+      //     // this.getNewBubble();
 
-          break;
-        }
-      }
+      //     break;
+      //   }
+      // }
     }
 
     getNewBubble() {
