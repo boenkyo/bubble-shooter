@@ -3,8 +3,6 @@ import cfg from './config';
 
 export default class Grid {
 
-  // TODO: make constants class with bubble and grid sizes
-
   constructor(game) {
     this.width      = cfg.GRID_WIDTH;
     this.height     = cfg.GRID_HEIGHT;

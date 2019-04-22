@@ -33,40 +33,6 @@ export default class Game {
 
   update(dt) {
     this.activeBubble.update(dt);
-
-    // for (let i = 0; i < this.grid.bubbles.length; ++i) {
-    //   const gridBubble = this.grid.bubbles[i];
-    //   const collision = this.activeBubble.shotHandler
-    //     .checkCollision(gridBubble);
-
-    //   if (collision.colliding) {
-    //     this.activeBubble.collided = true;
-
-    //     let q = gridBubble.gridPos.q;
-    //     let r = gridBubble.gridPos.r;
-
-    //     if (collision.horizontalPos == 'left') {
-    //       switch (collision.verticalPos) {
-    //         case 'bottom': q--; r++; break;
-    //         case 'middle': q--;      break;
-    //         case 'top':    r--;
-    //       }
-    //     } else {
-    //       switch (collision.verticalPos) {
-    //         case 'bottom': r++; break;
-    //         case 'middle': q++; break;
-    //         case 'top':    q++; r--;
-    //       }
-    //     }
-
-    //     // this.grid.addBubble(this.activeBubble, q, r);
-
-    //     // new active bubble
-    //     // this.getNewBubble();
-
-    //     break;
-    //   }
-    // }
   }
 
   getNewBubble() {

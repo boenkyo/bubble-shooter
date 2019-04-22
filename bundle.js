@@ -105,8 +105,6 @@
 
   class Grid {
 
-    // TODO: make constants class with bubble and grid sizes
-
     constructor(game) {
       this.width      = cfg.GRID_WIDTH;
       this.height     = cfg.GRID_HEIGHT;
@@ -186,7 +184,6 @@
       this.angle = Math.PI / 2;
       this.guideLen = 100;
 
-      this.samplePoints = [];
       this.wallHitPos;
       this.hitPos;
       this.hitScreenPos;
@@ -204,8 +201,6 @@
         this.hitScreenPos = undefined;
         return;
       }
-
-      this.samplePoints = [];
 
       this.sampleHexes();
 
@@ -238,8 +233,6 @@
         }
 
         const sampleCenterPos = { x: sampleXCenter, y: sampleYCenter };
-
-        this.samplePoints.push(sampleCenterPos);
 
         if (this.collidingWithBubble(sampleCenterPos)) {
           this.hitPos = this.screenPosToGridPos(sampleCenterPos);
@@ -309,21 +302,6 @@
         ctx.lineTo(this.lastSamplePos.x, this.lastSamplePos.y);
         ctx.stroke();
       }
-
-      // debug
-      // this.samplePoints.forEach(point => {
-      //   ctx.lineWidth = 1;
-      //   ctx.beginPath();
-      //   ctx.arc(point.x, point.y, 1, 0, Math.PI*2);
-      //   ctx.stroke();
-      // });
-      // if (this.wallHitPos) {
-      //   ctx.lineWidth = 2;
-      //   ctx.strokeStyle = '#fff';
-      //   ctx.beginPath();
-      //   ctx.arc(this.wallHitPos.x, this.wallHitPos.y, cfg.BUBBLE_RADIUS, 0, Math.PI*2);
-      //   ctx.stroke();
-      // }
 
       if (this.hitScreenPos) {
         ctx.lineWidth = 2;
@@ -400,40 +378,6 @@
 
     update(dt) {
       this.activeBubble.update(dt);
-
-      // for (let i = 0; i < this.grid.bubbles.length; ++i) {
-      //   const gridBubble = this.grid.bubbles[i];
-      //   const collision = this.activeBubble.shotHandler
-      //     .checkCollision(gridBubble);
-
-      //   if (collision.colliding) {
-      //     this.activeBubble.collided = true;
-
-      //     let q = gridBubble.gridPos.q;
-      //     let r = gridBubble.gridPos.r;
-
-      //     if (collision.horizontalPos == 'left') {
-      //       switch (collision.verticalPos) {
-      //         case 'bottom': q--; r++; break;
-      //         case 'middle': q--;      break;
-      //         case 'top':    r--;
-      //       }
-      //     } else {
-      //       switch (collision.verticalPos) {
-      //         case 'bottom': r++; break;
-      //         case 'middle': q++; break;
-      //         case 'top':    q++; r--;
-      //       }
-      //     }
-
-      //     // this.grid.addBubble(this.activeBubble, q, r);
-
-      //     // new active bubble
-      //     // this.getNewBubble();
-
-      //     break;
-      //   }
-      // }
     }
 
     getNewBubble() {

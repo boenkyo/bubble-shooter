@@ -1,5 +1,4 @@
 import cfg from './config';
-import { Bubble } from './bubble';
 
 export default class AimGuide {
 
@@ -11,7 +10,6 @@ export default class AimGuide {
     this.angle = Math.PI / 2;
     this.guideLen = 100;
 
-    this.samplePoints = [];
     this.wallHitPos;
     this.hitPos;
     this.hitScreenPos;
@@ -29,8 +27,6 @@ export default class AimGuide {
       this.hitScreenPos = undefined;
       return;
     }
-
-    this.samplePoints = [];
 
     this.sampleHexes();
 
@@ -63,8 +59,6 @@ export default class AimGuide {
       }
 
       const sampleCenterPos = { x: sampleXCenter, y: sampleYCenter };
-
-      this.samplePoints.push(sampleCenterPos);
 
       if (this.collidingWithBubble(sampleCenterPos)) {
         this.hitPos = this.screenPosToGridPos(sampleCenterPos);
@@ -134,21 +128,6 @@ export default class AimGuide {
       ctx.lineTo(this.lastSamplePos.x, this.lastSamplePos.y);
       ctx.stroke();
     }
-
-    // debug
-    // this.samplePoints.forEach(point => {
-    //   ctx.lineWidth = 1;
-    //   ctx.beginPath();
-    //   ctx.arc(point.x, point.y, 1, 0, Math.PI*2);
-    //   ctx.stroke();
-    // });
-    // if (this.wallHitPos) {
-    //   ctx.lineWidth = 2;
-    //   ctx.strokeStyle = '#fff';
-    //   ctx.beginPath();
-    //   ctx.arc(this.wallHitPos.x, this.wallHitPos.y, cfg.BUBBLE_RADIUS, 0, Math.PI*2);
-    //   ctx.stroke();
-    // }
 
     if (this.hitScreenPos) {
       ctx.lineWidth = 2;
