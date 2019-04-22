@@ -71,12 +71,11 @@ export default class Game {
 
   getNewBubble() {
     this.activeBubble = new Bubble(getRandomBubbleType(), cfg.BUBBLE_RADIUS);
-    this.activeBubble.addShotHandler(Object.assign({ ...this.aimGuide.origin }), this);
+    this.activeBubble.addScreenPos(Object.assign({ ...this.aimGuide.origin }));
   }
 
   shootBubble() {
-    this.activeBubble.shotHandler
-      .shoot(this.aimGuide.angle);
+    this.activeBubble.shoot(this.aimGuide.hitScreenPos, this.aimGuide.hitPos, this.aimGuide.wallHitPos);
   }
 
 }

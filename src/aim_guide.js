@@ -38,7 +38,7 @@ export default class AimGuide {
   }
 
   sampleHexes() {
-    const sampleDistance = 2;
+    const sampleDistance = 5;
     const yIncrement = sampleDistance * Math.sin(this.angle);
 
     let y = yIncrement;

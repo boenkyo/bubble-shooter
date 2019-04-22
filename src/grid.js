@@ -28,7 +28,6 @@ export default class Grid {
         const bubbleType = getRandomBubbleType();
         const bubble = new Bubble(bubbleType, cfg.BUBBLE_RADIUS);
         bubble.addGridPosition(this, q, r);
-
         bubbles.push(bubble);
       }
     }
@@ -46,7 +45,7 @@ export default class Grid {
       const newQ = bubble.gridPos.q - 1;
       const newR = bubble.gridPos.r + 2;
 
-      bubble.gridPos.update(newQ, newR);
+      bubble.updateGridPosition(newQ, newR);
     });
 
     const newBubbles = this.createBubbles(2);
@@ -54,7 +53,7 @@ export default class Grid {
   }
 
   addBubble(bubble, q, r) {
-    delete bubble.shotHandler;
+    bubble.isMoving = false;
     bubble.addGridPosition(this, q, r);
     this.bubbles.push(bubble);
   }
