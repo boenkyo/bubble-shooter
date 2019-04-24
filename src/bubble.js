@@ -2,34 +2,40 @@ import cfg from './config';
 
 export class Bubble {
 
-  constructor(bubbleType, radius) {
+  constructor(bubbleType, radius, grid) {
     this.type = bubbleType;
     this.radius = radius;
-    this.color = this.getColor(); // TODO: replace with sprite
+    this.grid = grid;
+    this.img = this.getImg();
     this.isMoving = false;
   }
 
-  getColor() {
+  getImg() {
+    let id;
     switch (this.type) {
       case BubbleType.Red:
-        return '#c22';
+        id = 'red-bubble';
+        break;
       case BubbleType.Green:
-        return '#2c2';
+        id = 'green-bubble';
+        break;
       case BubbleType.Blue:
-        return '#22c';
+        id = 'blue-bubble';
+        break;
       case BubbleType.Purple:
-        return '#c2c';
+        id = 'purple-bubble';
+        break;
       case BubbleType.Yellow:
-        return '#cc2';
+        id = 'yellow-bubble';
+        break;
     }
+
+    return document.getElementById(id);
   }
 
   draw(ctx) {
-    ctx.fillStyle = this.color;
-    ctx.beginPath();
-    ctx.arc(this.getScreenPos().x, this.getScreenPos().y,
-            this.radius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.drawImage(this.img, this.screenPos.x - this.radius, this.screenPos.y - this.radius,
+                  this.radius*2, this.radius*2);
 
     // Debugging
     if (this.gridPos && this.grid.debug) {
@@ -37,27 +43,27 @@ export class Bubble {
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.fillText(`(${this.gridPos.q}, ${this.gridPos.r})`,
-                   this.getScreenPos().x, this.getScreenPos().y);
+                   this.screenPos.x, this.screenPos.y);
     }
   }
 
-  addGridPosition(grid, q, r) {
-    this.grid = grid;
+  addGridPosition(q, r) {
     this.gridPos = { q, r, s: -q - r };
-    this.getScreenPos = () => this.grid.gridPosToScreenPos(this.gridPos);
+    this.screenPos = this.grid.gridPosToScreenPos(this.gridPos);
   }
 
   updateGridPosition(newQ, newR) {
     if (this.gridPos) {
       this.gridPos.q = newQ;
       this.gridPos.r = newR;
+      this.screenPos = this.grid.gridPosToScreenPos(this.gridPos);
     } else {
       console.error('The bubble doesn\'t have a grid position and it can\'t be updated.');
     }
   }
 
   addScreenPos(screenPos) {
-    this.getScreenPos = () => screenPos;
+    this.screenPos = screenPos;
   }
 
   shoot(targetScreenPos, targetGridPos, bounceScreenPos) {
@@ -66,14 +72,65 @@ export class Bubble {
     this.targetScreenPos = targetScreenPos;
     this.targetGridPos   = targetGridPos;
     this.bounceScreenPos = bounceScreenPos;
-    this.isMoving = true;
+
+    this.angleToBounce = bounceScreenPos ?
+      this.angleBetween(this.screenPos, bounceScreenPos) :
+      undefined;
+
     this.vel = { x: 0, y: 0 };
+    this.maxVel = 0.9;
+
+    if (bounceScreenPos) {
+      this.angleToTarget = this.angleBetween(bounceScreenPos, targetScreenPos);
+      this.movedToBouncePos = false;
+
+      this.vel.x = Math.cos(this.angleToBounce) * this.maxVel;
+      this.vel.y = Math.sin(this.angleToBounce) * this.maxVel;
+    } else {
+      this.angleToTarget = this.angleBetween(this.screenPos, targetScreenPos);
+
+      this.vel.x = Math.cos(this.angleToTarget) * this.maxVel;
+      this.vel.y = Math.sin(this.angleToTarget) * this.maxVel;
+    }
+
+    this.movedToTargetPos = false;
+
+    this.isMoving = true;
   }
 
-  animateMove() {}
+  angleBetween(p1, p2) {
+    const dx = p2.x - p1.x;
+    const dy = p1.y - p2.y;
+
+    return Math.atan2(dy, dx);
+  }
+
+  animateMove(dt) {
+    if (this.bounceScreenPos && !this.movedToBouncePos) {
+      if ((this.angleToBounce >= Math.PI/2 && this.screenPos.x > this.bounceScreenPos.x) ||
+          (this.angleToBounce < Math.PI/2  && this.screenPos.x < this.bounceScreenPos.x)) {
+        this.screenPos.x += this.vel.x * dt;
+        this.screenPos.y -= this.vel.y * dt;
+      } else {
+        this.screenPos.x = this.bounceScreenPos.x;
+        this.screenPos.y = this.bounceScreenPos.y;
+        this.vel.x = Math.cos(this.angleToTarget) * this.maxVel;
+        this.vel.y = Math.sin(this.angleToTarget) * this.maxVel;
+        this.movedToBouncePos = true;
+      }
+    } else {
+      if ((this.angleToTarget >= Math.PI/2 && this.screenPos.x > this.targetScreenPos.x) ||
+         (this.angleToTarget < Math.PI/2  && this.screenPos.x < this.targetScreenPos.x)) {
+        this.screenPos.x += this.vel.x * dt;
+        this.screenPos.y -= this.vel.y * dt;
+      } else {
+        this.inGrid = true;
+      }
+    }
+  }
 
   update(dt) {
-    if (this.isMoving) this.animateMove();
+    if (this.isMoving) this.animateMove(dt);
   }
 
 }

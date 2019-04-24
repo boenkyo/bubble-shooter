@@ -4,6 +4,8 @@ import cfg from './config';
 export default class Grid {
 
   constructor(game) {
+    this.game = game;
+
     this.width      = cfg.GRID_WIDTH;
     this.height     = cfg.GRID_HEIGHT;
     this.spacing    = cfg.GRID_SPACING;
@@ -24,8 +26,8 @@ export default class Grid {
       const rOffset = Math.floor(r/2);
       for (let q = -rOffset; q < this.width - rOffset; ++q) {
         const bubbleType = getRandomBubbleType();
-        const bubble = new Bubble(bubbleType, cfg.BUBBLE_RADIUS);
-        bubble.addGridPosition(this, q, r);
+        const bubble = new Bubble(bubbleType, cfg.BUBBLE_RADIUS, this);
+        bubble.addGridPosition(q, r);
         bubbles.push(bubble);
       }
     }
@@ -52,8 +54,9 @@ export default class Grid {
 
   addBubble(bubble, q, r) {
     bubble.isMoving = false;
-    bubble.addGridPosition(this, q, r);
+    bubble.addGridPosition(q, r);
     this.bubbles.push(bubble);
+    this.game.getNewBubble();
   }
 
   isPosEqual(pos1, pos2) {

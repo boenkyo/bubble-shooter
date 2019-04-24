@@ -3,7 +3,11 @@ body {
 }
 
 #my-canvas {
-    background-color: #111;
+    background-color: #1c1819;
     float: left;
     clear: left;
+}
+
+img {
+    display: none;
 }

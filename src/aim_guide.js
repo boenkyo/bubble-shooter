@@ -78,7 +78,7 @@ export default class AimGuide {
 
   collidingWithBubble(samplePos) {
     for (let bubbleIdx = 0; bubbleIdx < this.grid.bubbles.length; ++bubbleIdx) {
-      const bubblePos = this.grid.bubbles[bubbleIdx].getScreenPos();
+      const bubblePos = this.grid.bubbles[bubbleIdx].screenPos;
       const dist = Math.hypot(samplePos.x - bubblePos.x, samplePos.y - bubblePos.y);
       if (dist <= cfg.BUBBLE_RADIUS*2) return true;
     }
@@ -117,7 +117,7 @@ export default class AimGuide {
   draw(ctx) {
     if (this.hitPos) {
       ctx.strokeStyle = '#fff';
-      ctx.lineWidth   = 5;
+      ctx.lineWidth   = 3;
       ctx.beginPath();
       ctx.moveTo(this.origin.x, this.origin.y);
 
